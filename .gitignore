@@ -40,9 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/src/generated/prisma
-
 # data files (db and pre-baked data committed for Cloudflare Pages build)
+# prisma client generated at build time by npx prisma generate
 /public/data/
 /dump.sql
 /data/
