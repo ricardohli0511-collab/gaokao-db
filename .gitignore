@@ -40,9 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# data files (db and pre-baked data committed for Cloudflare Pages build)
-# prisma client generated at build time by npx prisma generate
-/public/data/
+# data files (pre-baked JSON committed for Cloudflare Pages CI build)
 /dump.sql
 /data/
 /.tmp-import/

@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:static": "rm -rf out && DATABASE_URL=\"file:./prisma/dev.db\" npx tsx scripts/export-static-data.ts && DATABASE_URL=\"file:./prisma/dev.db\" next build && echo '✅ Static build -> out/'",
+    "build:static:ci": "rm -rf out && next build && echo '✅ Static build -> out/'",
     "export": "npm run build:static",
     "start:static": "npx serve out -p 3000",
     "start": "next start",
