@@ -1,0 +1,290 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum RecordGranularity {
+  institution
+  group
+  major
+}
+
+enum SourceType {
+  html
+  pdf
+  xls
+  xlsx
+  csv
+  zip
+  manual
+}
+
+enum ImportJobStatus {
+  pending
+  running
+  completed
+  failed
+}
+
+enum SourceScope {
+  ingest
+  research
+}
+
+enum ExamCategory {
+  gaokao
+  sat
+  act
+  ap
+  ib
+  alevel
+  dse
+}
+
+model Institution {
+  id              Int       @id @default(autoincrement())
+  name            String    @unique
+  normalizedName  String?
+  code            String?   @unique
+  category        String
+  level           String?
+  ownership       String?
+  type            String?
+  province        String
+  city            String?
+  region          String?
+  hkCategory      String?
+  website         String?
+  sourceUpdatedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  aliases InstitutionAlias[]
+  records AdmissionRecord[]
+  associateRecords AssociateDegreeRecord[]
+  sourceDocuments SourceDocument[]
+}
+
+model AdmissionRecord {
+  id               Int               @id @default(autoincrement())
+  examCategory     ExamCategory      @default(gaokao)
+  recordIdentityKey String?          @unique
+  isSyntheticParent Boolean          @default(false)
+  year             Int
+  province         String
+  subjectGroup     String
+  batch            String
+  institutionId    Int
+  institutionCode  String?
+  rawInstitutionName String?
+  groupCode        String?
+  groupName        String?
+  groupRequirement String?
+  programVariant   String?
+  campusName       String?
+  granularity      RecordGranularity @default(institution)
+  admissionType    String
+  degreeLevel      String?
+  programmeName    String?
+  facultyName      String?
+  minScore         Int
+  avgScore         Int?
+  uqScore          Float?
+  medianScore      Float?
+  lqScore          Float?
+  minRank          Int?
+  enrollmentCount  Int?
+  planCount        Int?
+  admittedCount    Int?
+  sourceDocumentId Int?
+  sourceUrl        String?
+  rawRowHash       String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  institution    Institution    @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  sourceDocument SourceDocument? @relation(fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  majors         MajorRecord[]
+
+  @@unique([year, province, subjectGroup, batch, admissionType, institutionId, groupCode, programVariant, campusName, granularity])
+  @@index([province, year, subjectGroup, batch, minScore])
+  @@index([institutionId, year])
+  @@index([institutionCode, province, year])
+  @@index([createdAt])
+}
+
+model MajorRecord {
+  id                Int               @id @default(autoincrement())
+  examCategory      ExamCategory      @default(gaokao)
+  majorIdentityKey  String?           @unique
+  sourceLevel       String?
+  admissionRecordId Int
+  sourceDocumentId  Int?
+  majorName         String
+  majorCode         String?
+  majorRequirement  String?
+  minScore          Int
+  avgScore          Int?
+  maxScore          Int?
+  minRank           Int?
+  majorMinRank      Int?
+  enrollmentCount   Int?
+  planCount         Int?
+  sourceUrl         String?
+  rawRowHash        String?
+  granularity       RecordGranularity @default(major)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  admissionRecord AdmissionRecord @relation(fields: [admissionRecordId], references: [id], onDelete: Cascade)
+  sourceDocument  SourceDocument?  @relation(fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+
+  @@index([admissionRecordId, minScore])
+  @@index([majorName])
+}
+
+model AssociateDegreeRecord {
+  id                Int          @id @default(autoincrement())
+  examCategory      ExamCategory @default(gaokao)
+  recordIdentityKey String?      @unique
+  year              Int
+  institutionId     Int
+  programmeName     String
+  programmeCode     String?
+  programmeCategory String?
+  admissionRequirement String?
+  minScore          Float?
+  medianScore       Float?
+  maxScore          Float?
+  gaokaoRequirement String?
+  ieltsRequirement  Float?
+  interviewRequired Boolean?
+  quota             Int?
+  remarks           String?
+  sourceUrl         String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@index([institutionId, year])
+  @@index([examCategory, year])
+}
+
+model InstitutionAlias {
+  id              Int      @id @default(autoincrement())
+  institutionId   Int
+  aliasName       String
+  normalizedAlias String
+  institutionCode String?
+  sourceName      String?
+  sourceUrl       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@unique([institutionId, aliasName])
+  @@index([normalizedAlias])
+  @@index([institutionCode])
+}
+
+model SourceDocument {
+  id            Int               @id @default(autoincrement())
+  sourceId      String?
+  examCategory  ExamCategory      @default(gaokao)
+  sourceScope   SourceScope       @default(ingest)
+  sourceLevel   String?
+  schoolKey     String?
+  institutionId Int?
+  province      String
+  year          Int
+  title         String
+  sourceType    SourceType
+  granularity   RecordGranularity
+  officialUrl   String
+  localPath     String
+  sha256        String
+  parserKey     String
+  parserVersion String
+  fetchedAt     DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  admissionRecords AdmissionRecord[]
+  majorRecords     MajorRecord[]
+  institution      Institution?      @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+
+  @@unique([officialUrl, sha256])
+  @@index([province, year, sourceType])
+}
+
+model ExamFramework {
+  id                        Int      @id @default(autoincrement())
+  examCategory              ExamCategory
+  key                       String   @unique
+  label                     String
+  scoreMode                 String
+  subjectRequirementMode    String
+  officialSourceFeasibility String
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  requirementTemplates ExamRequirementTemplate[]
+}
+
+model ExamRequirementTemplate {
+  id              Int      @id @default(autoincrement())
+  examFrameworkId Int
+  institutionName String?
+  programName     String?
+  requirementText String
+  sourceUrl       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  examFramework ExamFramework @relation(fields: [examFrameworkId], references: [id], onDelete: Cascade)
+}
+
+model ResearchSourceDocument {
+  id           Int          @id @default(autoincrement())
+  examCategory ExamCategory
+  title        String
+  officialUrl  String       @unique
+  sourceType   String
+  sourceScope  SourceScope  @default(research)
+  fetchedAt    DateTime?
+  localPath    String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model ImportJob {
+  id                Int             @id @default(autoincrement())
+  name              String
+  status            ImportJobStatus @default(pending)
+  parserKey         String?
+  inputCount        Int             @default(0)
+  parsedCount       Int             @default(0)
+  importedCount     Int             @default(0)
+  updatedCount      Int             @default(0)
+  skippedCount      Int             @default(0)
+  failedCount       Int             @default(0)
+  reportPath        String?
+  errorMessage      String?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model AdminUser {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+}

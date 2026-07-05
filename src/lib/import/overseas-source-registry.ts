@@ -1,0 +1,155 @@
+export interface OverseasSourceEntry {
+  examCategory: 'sat' | 'act' | 'ap' | 'ib' | 'gaokao' | 'dse' | 'alevel';
+  title: string;
+  officialUrl: string;
+  sourceType: 'research-pdf' | 'research-csv' | 'official-admissions-pdf';
+  publicationYear: number;
+  dataYear: number;
+  status: 'collected' | 'searched-only' | 'todo';
+  notes: string;
+  institutionScope?: 'jupas-all' | 'single-school' | 'self-financed';
+}
+
+export const OVERSEAS_SOURCE_REGISTRY: OverseasSourceEntry[] = [
+  {
+    examCategory: 'sat',
+    title: 'SAT Suite of Assessments Annual Report (Class of 2025)',
+    officialUrl: 'https://reports.collegeboard.org/media/pdf/2025-total-group-sat-suite-of-assessments-annual-report%20ADA-v0.2_0.pdf',
+    sourceType: 'research-pdf',
+    publicationYear: 2025,
+    dataYear: 2025,
+    status: 'collected',
+    notes: 'College Board 2025 Total Group 报告，包含全国总分的 mean/percentile 分布、分项得分、demographic 统计。本地路径: data/raw/海外/SAT/2025-total-group-sat-suite-annual-report.pdf。各州报告也可用（50州均有独立 PDF）。另有 Class of 2024 存档。',
+  },
+  {
+    examCategory: 'act',
+    title: 'ACT National Profile Report 2025',
+    officialUrl: 'https://www.act.org/content/act/en/research.html',
+    sourceType: 'research-pdf',
+    publicationYear: 2025,
+    dataYear: 2025,
+    status: 'searched-only',
+    notes: 'ACT 官方年度国家概况报告，包含 composite score 分布。',
+  },
+  {
+    examCategory: 'ap',
+    title: 'AP Program Results: Class of 2025',
+    officialUrl: 'https://reports.collegeboard.org/ap-program-results',
+    sourceType: 'research-pdf',
+    publicationYear: 2025,
+    dataYear: 2025,
+    status: 'searched-only',
+    notes: 'AP 各科目 5/4/3 分率及考生人数年度报告。',
+  },
+  {
+    examCategory: 'ib',
+    title: 'IB Statistical Bulletin 2025',
+    officialUrl: 'https://www.ibo.org/research/statistical-bulletins/',
+    sourceType: 'research-pdf',
+    publicationYear: 2025,
+    dataYear: 2025,
+    status: 'searched-only',
+    notes: 'IBO 年度统计公报，包含全球及地区 DP 成绩统计。',
+  },
+  // === 香港本科录取（内地高考） ===
+  {
+    examCategory: 'gaokao',
+    title: '香港中文大学 内地高考统招录取（提前批）',
+    officialUrl: '各省考试院投档线中包含',
+    sourceType: 'research-pdf',
+    publicationYear: 2025,
+    dataYear: 2025,
+    status: 'searched-only',
+    institutionScope: 'single-school',
+    notes: 'CUHK 通过内地统招提前批录取，投档线已在各省 provincial parser 源中。可通过后处理脚本从广东/江苏/浙江等省份源中提取 institutionName: 香港中文大学 的记录。HKU/HKUST/PolyU/CityU 为自主招生，不公开省分数线。',
+  },
+  {
+    examCategory: 'gaokao',
+    title: '香港大学 内地高考自主招生录取',
+    officialUrl: 'https://admissions.hku.hk/zh-hans/apply/mainland',
+    sourceType: 'research-pdf',
+    publicationYear: 2025,
+    dataYear: 2025,
+    status: 'todo',
+    institutionScope: 'single-school',
+    notes: 'HKU 自主招生，不公开各省录取分数线。录取基于高考总分+英语成绩+面试。无结构化数据可入库。',
+  },
+  {
+    examCategory: 'gaokao',
+    title: '香港中文大学/香港城市大学 内地高考统招录取（提前批）',
+    officialUrl: '各省考试院投档线中已包含',
+    sourceType: 'research-pdf',
+    publicationYear: 2025,
+    dataYear: 2025,
+    status: 'searched-only',
+    institutionScope: 'single-school',
+    notes: 'CUHK/CityU/珠海学院通过内地统招录取，投档线已随各省 provincial parser 源自动入库。无需额外操作。HKU/PolyU/HKUST/HKBU/Lingnan/EdUHK/HKMU 等 12 校为自主招生，不公开省分数线。',
+  },
+  {
+    examCategory: 'gaokao',
+    title: '香港副学士/高级文凭 内地高考录取（无公开分数线）',
+    officialUrl: '各专上学院招生简章分散发布',
+    sourceType: 'research-pdf',
+    publicationYear: 2025,
+    dataYear: 2025,
+    status: 'todo',
+    institutionScope: 'self-financed',
+    notes: 'HKCC PolyU/HKBU CIE/HKU SPACE/UOWCHK 等副学士课程。录取基于 HKDSE 5科 Level 2+面试，部分院校接受内地高考成绩（一本/二本线+英语）。不公开实际录取最低分，仅公开入学门槛要求。',
+  },
+  {
+    examCategory: 'gaokao',
+    title: '澳门 6 所高校 内地高考录取（无公开省分数线）',
+    officialUrl: '各校自主招生官网',
+    sourceType: 'research-pdf',
+    publicationYear: 2025,
+    dataYear: 2025,
+    status: 'todo',
+    notes: '澳门大学/澳科大/澳理工/澳城大/澳旅游/镜湖护理 6 校自主招生。录取要求：高考一本线/特控线+英语 110+（澳大），其他校一本/二本线。无省分数线公开，仅公开入学门槛。',
+  },
+  // === 香港 JUPAS 本科录取（DSE） ===
+  {
+    examCategory: 'dse',
+    title: '2025 JUPAS 9所参与院校新生入学成绩',
+    officialUrl: 'https://www.jupas.edu.hk/f/page/3667/af_2025_JUPAS.pdf',
+    sourceType: 'official-admissions-pdf',
+    publicationYear: 2025,
+    dataYear: 2025,
+    status: 'collected',
+    institutionScope: 'jupas-all',
+    notes: '港八大+都大 JUPAS Main Round 录取分数（UQ/Median/LQ），按课程分。HKDSE Best 5/6 计分。本地路径: data/raw/香港/JUPAS/af_2025_JUPAS.pdf。2012-2025 历年均有。',
+  },
+  {
+    examCategory: 'dse',
+    title: '2024 JUPAS 9所参与院校新生入学成绩',
+    officialUrl: 'https://www.jupas.edu.hk/f/page/3667/af_2024_JUPAS.pdf',
+    sourceType: 'official-admissions-pdf',
+    publicationYear: 2024,
+    dataYear: 2024,
+    status: 'collected',
+    institutionScope: 'jupas-all',
+    notes: '同上，2024 年版。本地路径: data/raw/香港/JUPAS/af_2024_JUPAS.pdf。',
+  },
+  {
+    examCategory: 'dse',
+    title: '2023 JUPAS 9所参与院校新生入学成绩',
+    officialUrl: 'https://www.jupas.edu.hk/f/page/3667/af_2023_JUPAS.pdf',
+    sourceType: 'official-admissions-pdf',
+    publicationYear: 2023,
+    dataYear: 2023,
+    status: 'collected',
+    institutionScope: 'jupas-all',
+    notes: '同上，2023 年版。本地路径: data/raw/香港/JUPAS/af_2023_JUPAS.pdf。',
+  },
+  // === 香港副学士 ===
+  {
+    examCategory: 'dse',
+    title: '香港副学士/高级文凭课程录取数据（待收集）',
+    officialUrl: 'TODO: 各院校招生简章分散收集',
+    sourceType: 'research-pdf',
+    publicationYear: 2025,
+    dataYear: 2025,
+    status: 'todo',
+    institutionScope: 'self-financed',
+    notes: '副学士录取无统一公开数据集。来源需从 HKCC PolyU、HKBU CIE、UOWCHK、HKU SPACE 等院校招生简章中逐个提取。录取通常以 HKDSE 分数+面试评估，不公开最低分。',
+  },
+];

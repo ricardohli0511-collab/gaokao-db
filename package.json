@@ -1,0 +1,50 @@
+{
+  "name": "gaokao-db",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:static": "rm -rf out && DATABASE_URL=\"file:./prisma/dev.db\" npx tsx scripts/export-static-data.ts && DATABASE_URL=\"file:./prisma/dev.db\" next build && echo '✅ Static build -> out/'",
+    "export": "npm run build:static",
+    "start:static": "npx serve out -p 3000",
+    "start": "next start",
+    "lint": "eslint",
+    "test:import": "tsx --test src/lib/import/normalize.test.ts",
+    "import:fetch": "tsx scripts/data/fetch-official-sources.ts",
+    "import:parse": "tsx scripts/data/parse-sources.ts",
+    "import:load": "tsx scripts/data/load-normalized.ts",
+    "import:report": "tsx scripts/data/generate-coverage-report.ts",
+    "import:all": "tsx scripts/import-all.ts"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.4",
+    "@prisma/adapter-libsql": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "adm-zip": "^0.5.18",
+    "bcryptjs": "^3.0.3",
+    "next": "16.2.9",
+    "pdf-parse": "^2.4.5",
+    "prisma": "^7.8.0",
+    "prisma-adapter-sqlite": "^1.0.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "recharts": "^3.9.1",
+    "xlsx": "^0.18.5",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/adm-zip": "^0.5.8",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.9",
+    "tailwindcss": "^4",
+    "tsx": "^4.22.4",
+    "typescript": "^5"
+  }
+}
