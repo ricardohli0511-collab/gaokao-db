@@ -1,64 +1,35 @@
-import { prisma } from '@/lib/prisma';
+'use client';
 
-export default async function AdminDashboardPage() {
-  const [institutionCount, recordCount, provinceResult, latestRecord] = await Promise.all([
-    prisma.institution.count(),
-    prisma.admissionRecord.count(),
-    prisma.institution.findMany({
-      select: { province: true },
-      distinct: ['province'],
-    }),
-    prisma.admissionRecord.findFirst({
-      orderBy: { year: 'desc' },
-      select: { year: true },
-    }),
-  ]);
+import Link from 'next/link';
+import PageHeader from '@/components/PageHeader';
+import Footer from '@/components/Footer';
 
-  const provinceCount = provinceResult.length;
-  const latestYear = latestRecord?.year ?? null;
-
-  const stats = [
-    { label: '院校总数', value: institutionCount, color: 'bg-blue-50 text-blue-700 border-blue-200' },
-    { label: '录取记录', value: recordCount, color: 'bg-green-50 text-green-700 border-green-200' },
-    { label: '覆盖省份', value: provinceCount, color: 'bg-purple-50 text-purple-700 border-purple-200' },
-    { label: '最新年份', value: latestYear ?? '-', color: 'bg-orange-50 text-orange-700 border-orange-200' },
-  ];
-
-  const actions = [
-    { href: '/admin/schools', label: '管理院校', description: '添加、编辑或删除院校信息' },
-    { href: '/admin/records', label: '管理录取数据', description: '查看和编辑历年录取分数线' },
-    { href: '/admin/import', label: '导入数据', description: '批量导入 Excel / CSV 数据' },
-  ];
-
+export default function AdminPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">数据概览</h1>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className={`rounded-xl border p-5 ${stat.color}`}
-          >
-            <p className="text-sm font-medium opacity-80">{stat.label}</p>
-            <p className="text-3xl font-bold mt-1">{stat.value}</p>
+    <div className="min-h-screen flex flex-col">
+      <PageHeader title="数据管理后台" highlightChar="管" subtitle="数据导入与管理 — 仅限本地开发环境使用" backHref="/" />
+      <div className="flex-1 -mt-10 px-4 pb-20">
+        <div className="max-w-lg mx-auto">
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-500">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+            </div>
+            <h2 className="text-lg font-bold text-amber-800 mb-2">部署版本限制</h2>
+            <p className="text-sm text-amber-700 mb-4">
+              数据管理后台（数据导入、院校管理、录取记录编辑）仅在本地开发环境中可用。
+            </p>
+            <p className="text-xs text-amber-600">
+              如需更新数据，请在本地运行 <code className="bg-amber-100 px-1.5 py-0.5 rounded">npm run dev</code> 后访问本地后台进行操作。
+            </p>
           </div>
-        ))}
+          <div className="mt-6 text-center">
+            <Link href="/" className="text-sm text-brand-accent hover:underline">返回首页</Link>
+          </div>
+        </div>
       </div>
-
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">快捷操作</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {actions.map((action) => (
-          <a
-            key={action.href}
-            href={action.href}
-            className="block bg-white rounded-xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-sm transition"
-          >
-            <h3 className="font-semibold text-gray-900 mb-1">{action.label}</h3>
-            <p className="text-sm text-gray-500">{action.description}</p>
-          </a>
-        ))}
-      </div>
+      <Footer />
     </div>
   );
 }
